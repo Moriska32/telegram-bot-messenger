@@ -15,7 +15,7 @@ type configJSON struct {
 }
 
 //TelebotInit initialization bot
-func telebotInit() {
+func TelebotInit() *tgbotapi.BotAPI {
 
 	jsonFile, err := os.Open("config.json")
 	defer jsonFile.Close()
@@ -49,4 +49,5 @@ func telebotInit() {
 			continue
 		}
 	}
+	return bot
 }
