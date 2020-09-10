@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"telegram-bot-messenger/config"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -16,6 +17,9 @@ type configJSON struct {
 
 //TelebotInit initialization bot
 func TelebotInit() *tgbotapi.BotAPI {
+
+	dbConnect := config.Connect()
+	defer dbConnect.Close()
 
 	jsonFile, err := os.Open("config.json")
 	defer jsonFile.Close()
@@ -48,6 +52,25 @@ func TelebotInit() *tgbotapi.BotAPI {
 		if update.Message == nil { // ignore any non-Message Updates
 			continue
 		}
+
+		query := "select from nami.fn_telegram_ins(?,?)"
+
+		_, err := dbConnect.Exec(query, update.ChannelPost.Chat.ID, update.ChannelPost.Chat.Type)
+
+		if err != nil {
+			log.Panic(err.Error())
+		}
 	}
 	return bot
+}
+
+//SendMessegeBot Call for sand messege to somebody
+func SendMessegeBot(t *tgbotapi.BotAPI) {
+
+	dbConnect := config.Connect()
+	defer dbConnect.Close()
+
+	query := "select from nami.fn_telegram_sel(?)"
+	_ = query
+
 }

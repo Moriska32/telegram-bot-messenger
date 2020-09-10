@@ -1,9 +1,11 @@
 package main
 
 import (
-	bot "telegram-bot-messenger/Telebot"
+	telebot "telegram-bot-messenger/Telebot"
 )
 
 func main() {
-	bot.TelebotInit()
+	bot := telebot.TelebotInit()
+	telebot.SendMessegeBot(bot)
+
 }
