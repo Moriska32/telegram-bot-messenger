@@ -50,10 +50,16 @@ func BotINIT() *tgbotapi.BotAPI {
 			continue
 		}
 
-		log.Printf(string(update.Message.Chat.ID), update.Message.Chat.Type)
+		if update.Message.Chat.ID != 0 {
+			fmt.Println("person Go")
+			loadtodb(update.Message.Chat.ID, "NULL", update.Message.Chat.Type)
+		}
 
-		loadtodb(update.Message.Chat.ID, "NULL", update.Message.Chat.Type)
+		if update.ChannelPost.Chat.ID != 0 {
+			fmt.Println("Chat Go")
+			loadtodb(update.ChannelPost.Chat.ID, update.ChannelPost.Chat.Title, update.ChannelPost.Chat.Type)
 
+		}
 	}
 	return bot
 }
@@ -63,13 +69,13 @@ func loadtodb(id int64, title string, who string) {
 	dbConnect := config.Connect()
 	defer dbConnect.Close()
 
-	fmt.Printf(string(id), title, who)
+	query := fmt.Sprintf("select from nami.fn_telegram_ins(%d,'%s','%s')", id, title, who)
 
-	query := fmt.Sprintf("select from nami.fn_telegram_ins(%s,'null','%s')", string(id), who)
+	_, err := dbConnect.Exec(query)
 
-	err := dbConnect.QueryRow(query)
 	if err != nil {
-		log.Panic(err)
+		fmt.Println(err)
+		return
 	}
 	return
 }
