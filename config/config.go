@@ -10,8 +10,8 @@ import (
 
 //Connect Connecting to db
 func Connect() *sql.DB {
-	//"postgres://kot_user:1qaz@WSX@172.20.0.78:5432/hospital_db"
-	db, err := sql.Open("postgres", "postgres://kot_user:1qazXSW@@172.20.0.78:5432/hospital_db")
+
+	db, err := sql.Open("postgres", "Your BD")
 
 	if err != nil {
 		log.Printf("Reason: %v\n", err)
