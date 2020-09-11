@@ -18,9 +18,6 @@ type configJSON struct {
 //TelebotInit initialization bot
 func TelebotInit() *tgbotapi.BotAPI {
 
-	dbConnect := config.Connect()
-	defer dbConnect.Close()
-
 	jsonFile, err := os.Open("config.json")
 	defer jsonFile.Close()
 	// if we os.Open returns an error then handle it
@@ -53,15 +50,28 @@ func TelebotInit() *tgbotapi.BotAPI {
 			continue
 		}
 
-		query := "select from nami.fn_telegram_ins(?,?)"
+		log.Printf(string(update.ChannelPost.Chat.ID), update.ChannelPost.Chat.Title, update.ChannelPost.Chat.Type)
 
-		_, err := dbConnect.Exec(query, update.ChannelPost.Chat.ID, update.ChannelPost.Chat.Type)
+		loadtodb(update.ChannelPost.Chat.ID, update.ChannelPost.Chat.Title, update.ChannelPost.Chat.Type)
 
-		if err != nil {
-			log.Panic(err.Error())
-		}
 	}
 	return bot
+}
+
+func loadtodb(id int64, title string, who string) {
+
+	dbConnect := config.Connect()
+	defer dbConnect.Close()
+
+	fmt.Printf(string(id), title, who)
+
+	query := "select from nami.fn_telegram_ins(?,?,?)"
+
+	_, err := dbConnect.Exec(query, id, title, who)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	return
 }
 
 //SendMessegeBot Call for sand messege to somebody
