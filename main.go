@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	bot := telebot.BotINIT
+
+	bot := telebot.BotINIT()
 	var (
 		who  string = "channel"
 		text string = "hallo"

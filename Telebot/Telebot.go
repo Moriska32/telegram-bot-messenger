@@ -94,7 +94,7 @@ type UserJSON []struct {
 //SendMessegeBot Call for sand messege to somebody
 func SendMessegeBot(t *tgbotapi.BotAPI, who string, text string) error {
 
-	dbConnect := telebot.config.Connect()
+	dbConnect := config.Connect()
 	defer dbConnect.Close()
 
 	var (
