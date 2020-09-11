@@ -77,6 +77,28 @@ func loadtodb(id int64, title string, who string) error {
 	dbConnect := config.Connect()
 	defer dbConnect.Close()
 
+	/*
+	   CREATE OR REPLACE FUNCTION nami.fn_telegram_ins(i_tlgid bigint, i_title character varying, i_type character varying, OUT o_res integer, OUT o_mes character varying)
+	    RETURNS record
+	    LANGUAGE plpgsql
+	   AS $function$
+	   BEGIN
+
+	     o_Res = 0;
+	     o_Mes = '';
+
+	     insert into nami.stelegram (tlg_id,title,type)
+	     values (i_tlgid,i_title,i_type);
+
+	     RETURN;
+
+	   END;
+	   $function$
+	   ;
+
+
+	*/
+
 	query := fmt.Sprintf("select from nami.fn_telegram_ins(%d,'%s','%s')", id, title, who)
 
 	_, err := dbConnect.Exec(query)
@@ -100,6 +122,38 @@ func SendMessegeBot(t *tgbotapi.BotAPI, who string, text string) error {
 	var (
 		pool string
 	)
+
+	/*
+	   CREATE OR REPLACE FUNCTION nami.fn_telegram_sel(OUT o_json json)
+	    RETURNS json
+	    LANGUAGE plpgsql
+	   AS $function$
+	   BEGIN
+
+	     select json_agg(
+	             t1.ob
+	            )
+	     from (
+	       select json_build_object(
+	               'id',t.tlg_id,
+	               'title',t.title,
+	               'type',t.type
+	              ) as ob
+	         from nami.stelegram t
+	     ) as t1
+	     into o_Json;
+
+	     o_Json = COALESCE (o_Json,'[]');
+
+	     RETURN;
+
+	   END;
+	   $function$
+	   ;
+
+
+	*/
+
 	todo := fmt.Sprintf("SELECT nami.fn_telegram_sel('%s');", who)
 	_ = todo
 	sql, err := dbConnect.Query(todo)
