@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"telegram-bot-messenger/config"
 
+	"github.com/Moriska32/telegram-bot-messenger/config"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
@@ -94,7 +94,7 @@ type UserJSON []struct {
 //SendMessegeBot Call for sand messege to somebody
 func SendMessegeBot(t *tgbotapi.BotAPI, who string, text string) error {
 
-	dbConnect := config.Connect()
+	dbConnect := telebot.config.Connect()
 	defer dbConnect.Close()
 
 	var (
@@ -117,10 +117,10 @@ func SendMessegeBot(t *tgbotapi.BotAPI, who string, text string) error {
 		if err != nil {
 			return err
 		}
-
-		msg := tgbotapi.NewMessage(int64(user[0].ID), text)
-		t.Send(msg)
-
+		for _, i := range user {
+			msg := tgbotapi.NewMessage(int64(i.ID), text)
+			t.Send(msg)
+		}
 	}
 	return err
 }

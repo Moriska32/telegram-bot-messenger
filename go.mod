@@ -1,4 +1,4 @@
-module telegram-bot-messenger
+module github.com/Moriska32/telegram-bot-messenger
 
 go 1.14
 
