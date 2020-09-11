@@ -6,7 +6,7 @@ import (
 
 func main() {
 	bot := telebot.BotINIT()
-	_ = bot
-	//telebot.SendMessegeBot(bot)
+
+	telebot.SendMessegeBot(bot, "privat", "Hallo")
 
 }
