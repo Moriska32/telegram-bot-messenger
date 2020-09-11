@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"telegram-bot-messenger/config"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -46,27 +45,30 @@ func BotINIT() *tgbotapi.BotAPI {
 
 	updates, err := bot.GetUpdatesChan(u)
 
-	for update := range updates {
+	go func(tgbotapi.UpdatesChannel) {
 
-		if update.Message != nil {
+		for update := range updates {
 
-			err := loadtodb(update.Message.Chat.ID, "NULL", update.Message.Chat.Type)
+			if update.Message != nil {
 
-			if err != nil {
-				log.Println(err)
+				err := loadtodb(update.Message.Chat.ID, "NULL", update.Message.Chat.Type)
+
+				if err != nil {
+					log.Println(err)
+				}
+
 			}
 
-		}
+			if update.ChannelPost != nil {
+				err := loadtodb(update.ChannelPost.Chat.ID, update.ChannelPost.Chat.Title, update.ChannelPost.Chat.Type)
 
-		if update.ChannelPost != nil {
-			err := loadtodb(update.ChannelPost.Chat.ID, update.ChannelPost.Chat.Title, update.ChannelPost.Chat.Type)
+				if err != nil {
+					log.Println(err)
+				}
 
-			if err != nil {
-				log.Println(err)
 			}
-
 		}
-	}
+	}(updates)
 	return bot
 }
 
@@ -82,38 +84,43 @@ func loadtodb(id int64, title string, who string) error {
 	return err
 }
 
-//UsersJSON json
-type UsersJSON []struct {
+//UserJSON json
+type UserJSON []struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
 	Type  string `json:"type"`
 }
 
 //SendMessegeBot Call for sand messege to somebody
-func SendMessegeBot(t *tgbotapi.BotAPI, who string, text string) {
+func SendMessegeBot(t *tgbotapi.BotAPI, who string, text string) error {
 
 	dbConnect := config.Connect()
 	defer dbConnect.Close()
 
 	var (
-		pool  string
-		users UsersJSON
+		pool string
 	)
-	todo := `SELECT nami.fn_telegram_sel(?)`
-	sql := dbConnect.QueryRow(todo, who)
-	sql.Scan(&pool)
-	pool = strings.Replace(pool, `\`, ``, 1)
-	err := json.Unmarshal([]byte(pool), &users)
+	todo := fmt.Sprintf("SELECT nami.fn_telegram_sel('%s');", who)
+	_ = todo
+	sql, err := dbConnect.Query(todo)
 
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
+	for sql.Next() {
+		var user UserJSON
 
-	for _, user := range users {
+		sql.Scan(&pool)
+		log.Printf(pool)
+		err = json.Unmarshal([]byte(pool), &user)
 
-		msg := tgbotapi.NewMessage(int64(user.ID), text)
+		if err != nil {
+			return err
+		}
+
+		msg := tgbotapi.NewMessage(int64(user[0].ID), text)
 		t.Send(msg)
 
 	}
-
+	return err
 }
