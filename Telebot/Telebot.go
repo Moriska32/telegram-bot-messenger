@@ -74,8 +74,9 @@ func loadtodb(id int64, title string, who string) {
 	_, err := dbConnect.Exec(query)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+
+		panic(err)
+
 	}
 	return
 }
