@@ -15,8 +15,8 @@ type configJSON struct {
 	BotKey string `json:"bot-key"`
 }
 
-//TelebotInit initialization bot
-func TelebotInit() *tgbotapi.BotAPI {
+//BotINIT initialization bot
+func BotINIT() *tgbotapi.BotAPI {
 
 	jsonFile, err := os.Open("config.json")
 	defer jsonFile.Close()
@@ -50,9 +50,9 @@ func TelebotInit() *tgbotapi.BotAPI {
 			continue
 		}
 
-		log.Printf(string(update.ChannelPost.Chat.ID), update.ChannelPost.Chat.Title, update.ChannelPost.Chat.Type)
+		log.Printf(string(update.Message.Chat.ID), update.Message.Chat.Type)
 
-		loadtodb(update.ChannelPost.Chat.ID, update.ChannelPost.Chat.Title, update.ChannelPost.Chat.Type)
+		loadtodb(update.Message.Chat.ID, "NULL", update.Message.Chat.Type)
 
 	}
 	return bot
@@ -65,11 +65,11 @@ func loadtodb(id int64, title string, who string) {
 
 	fmt.Printf(string(id), title, who)
 
-	query := "select from nami.fn_telegram_ins(?,?,?)"
+	query := fmt.Sprintf("select from nami.fn_telegram_ins(%s,'null','%s')", string(id), who)
 
-	_, err := dbConnect.Exec(query, id, title, who)
+	err := dbConnect.QueryRow(query)
 	if err != nil {
-		log.Panic(err.Error())
+		log.Panic(err)
 	}
 	return
 }

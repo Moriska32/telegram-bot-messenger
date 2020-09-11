@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	bot := telebot.TelebotInit()
+	bot := telebot.BotINIT()
 	_ = bot
 	//telebot.SendMessegeBot(bot)
 
